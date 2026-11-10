@@ -1,0 +1,83 @@
+<div id="inventoryAlertPage" data-endpoint="{{ alert_endpoint }}" data-kind="{{ alert_kind }}">
+
+    <div class="page-header">
+        <div>
+            <h2>{{ alert_title }}</h2>
+            <p>{{ alert_description }}</p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'inventory-page' %}" class="btn btn-secondary">
+                ← Tous les lots
+            </a>
+            <a href="{% url 'inventory-movements-page' %}" class="btn btn-primary">
+                + Nouveau mouvement
+            </a>
+        </div>
+    </div>
+
+    {% include 'inventory/includes/tabs.html' %}
+
+    <div class="alert alert-danger hidden" id="inventoryAlertPageError" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">{{ alert_stat_label }}</span>
+                <div class="stat-icon">{{ alert_icon }}</div>
+            </div>
+            <div class="stat-value" id="inventoryAlertCount">—</div>
+            <p class="stat-description">{{ alert_stat_description }}</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="inventoryAlertSearch"
+                    placeholder="Rechercher par médicament ou numéro de lot..."
+                    autocomplete="off"
+                    aria-label="Rechercher un lot"
+                >
+            </div>
+
+            <button type="button" class="btn btn-secondary" id="resetInventoryAlertFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="inventoryAlertResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Médicament</th>
+                        <th>Lot</th>
+                        <th class="text-right">Qté disponible</th>
+                        <th class="text-right">Qté reçue</th>
+                        <th>Expiration</th>
+                        <th>État</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryAlertTableBody">
+                    <tr>
+                        <td colspan="7">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des lots...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="inventoryAlertPagination" class="pagination"></div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Lots expirés | PharmaStock{% endblock %}
+
+{% block page_heading %}Lots expirés{% endblock %}
+{% block page_subtitle %}Produits dont la date d’expiration est dépassée et qui ont encore du stock.{% endblock %}
+
+{% block content %}
+{% include 'inventory/includes/alerts_content.html' with alert_kind='expired' alert_title='Lots expirés' alert_description='Ces lots sont expirés et ne doivent pas être utilisés pour une vente. Contrôlez leur quantité restante et enregistrez un ajustement si nécessaire.' alert_endpoint='/api/inventory/batches/expired/' alert_stat_label='Lots expirés' alert_stat_description='Lots expirés avec stock restant' alert_icon='⛔' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'inventory/js/alerts.js' %}"></script>
+{% endblock %}

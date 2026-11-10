@@ -1,0 +1,130 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Ventes | PharmaStock{% endblock %}
+
+{% block page_heading %}Ventes{% endblock %}
+{% block page_subtitle %}Consultez l’historique des transactions et enregistrez de nouvelles ventes.{% endblock %}
+
+{% block content %}
+<div id="salesPage">
+
+    <div class="page-header">
+        <div>
+            <h2>Historique des ventes</h2>
+            <p>
+                Retrouvez les ventes réalisées, leur montant, leur statut et
+                les médicaments vendus.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            {% if can_create_sales %}
+            <a href="{% url 'sale-create-page' %}" class="btn btn-primary">
+                + Nouvelle vente
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="salesPageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques des ventes">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Ventes</span>
+                <div class="stat-icon">▧</div>
+            </div>
+            <div class="stat-value" id="salesTotalCount">—</div>
+            <p class="stat-description">Nombre total de ventes</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Terminées</span>
+                <div class="stat-icon">✓</div>
+            </div>
+            <div class="stat-value" id="salesCompletedCount">—</div>
+            <p class="stat-description">Ventes au statut COMPLETED</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Annulées</span>
+                <div class="stat-icon">⊘</div>
+            </div>
+            <div class="stat-value" id="salesCancelledCount">—</div>
+            <p class="stat-description">Ventes au statut CANCELLED</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Chiffre d’affaires</span>
+                <div class="stat-icon">∑</div>
+            </div>
+            <div class="stat-value" id="salesRevenueTotal">—</div>
+            <p class="stat-description">Total des ventes terminées</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="salesSearch"
+                    placeholder="Rechercher par vente, vendeur ou médicament..."
+                    autocomplete="off"
+                    aria-label="Rechercher une vente"
+                >
+            </div>
+
+            <select id="salesStatusFilter" class="filter-select" aria-label="Filtrer par statut">
+                <option value="">Tous les statuts</option>
+                <option value="COMPLETED">Terminées</option>
+                <option value="CANCELLED">Annulées</option>
+            </select>
+
+            <button type="button" class="btn btn-secondary" id="resetSalesFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="salesResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Vente</th>
+                        <th>Date</th>
+                        <th>Vendeur</th>
+                        <th>Articles</th>
+                        <th>Total</th>
+                        <th>Statut</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                    <tr>
+                        <td colspan="7">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des ventes...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="salesPagination" class="pagination"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'sales/js/sales.js' %}"></script>
+{% endblock %}

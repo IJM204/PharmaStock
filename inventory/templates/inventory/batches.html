@@ -1,0 +1,138 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Stock | PharmaStock{% endblock %}
+
+{% block page_heading %}Gestion du stock{% endblock %}
+{% block page_subtitle %}Suivez les lots, les quantités disponibles et les dates d’expiration.{% endblock %}
+
+{% block content %}
+<div id="inventoryPage">
+
+    <div class="page-header">
+        <div>
+            <h2>Lots de stock</h2>
+            <p>
+                Consultez les lots disponibles, identifiez les stocks faibles
+                et les produits expirés, puis enregistrez les mouvements.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'inventory-movements-page' %}" class="btn btn-primary">
+                + Nouveau mouvement
+            </a>
+        </div>
+    </div>
+
+    {% include 'inventory/includes/tabs.html' %}
+
+    <div class="alert alert-danger hidden" id="inventoryPageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques du stock">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Lots de stock</span>
+                <div class="stat-icon">📦</div>
+            </div>
+            <div class="stat-value" id="inventoryBatchCount">—</div>
+            <p class="stat-description">Nombre total de lots</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Stock disponible</span>
+                <div class="stat-icon">▣</div>
+            </div>
+            <div class="stat-value" id="inventoryAvailableCount">—</div>
+            <p class="stat-description">Quantité totale disponible</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Stock faible</span>
+                <div class="stat-icon">⚠</div>
+            </div>
+            <div class="stat-value" id="inventoryLowCount">—</div>
+            <p class="stat-description">Lots avec quantité faible</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Expirés</span>
+                <div class="stat-icon">⛔</div>
+            </div>
+            <div class="stat-value" id="inventoryExpiredCount">—</div>
+            <p class="stat-description">Lots expirés avec stock restant</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="batchSearch"
+                    placeholder="Rechercher par médicament ou numéro de lot..."
+                    autocomplete="off"
+                    aria-label="Rechercher un lot"
+                >
+            </div>
+
+            <select id="batchMedicineFilter" class="filter-select" aria-label="Filtrer par médicament">
+                <option value="">Tous les médicaments</option>
+            </select>
+
+            <select id="batchStatusFilter" class="filter-select" aria-label="Filtrer par état">
+                <option value="">Tous les états</option>
+                <option value="available">Disponibles</option>
+                <option value="low">Stock faible</option>
+                <option value="expired">Expirés</option>
+                <option value="expiring">Expire bientôt</option>
+            </select>
+
+            <button type="button" class="btn btn-secondary" id="resetBatchFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="batchResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Médicament</th>
+                        <th>Lot</th>
+                        <th class="text-right">Qté reçue</th>
+                        <th class="text-right">Qté disponible</th>
+                        <th>Prix d’achat</th>
+                        <th>Fabrication</th>
+                        <th>Expiration</th>
+                        <th>État</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="batchTableBody">
+                    <tr>
+                        <td colspan="9">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des lots...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="batchPagination" class="pagination"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'inventory/js/batches.js' %}"></script>
+{% endblock %}

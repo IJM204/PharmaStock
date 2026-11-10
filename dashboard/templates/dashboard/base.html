@@ -1,0 +1,162 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <title>{% block title %}PharmaStock{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/css/components.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">P</div>
+            <div>
+                <h2>PharmaStock</h2>
+                <small>Gestion pharmacie</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="nav-label">MENU PRINCIPAL</p>
+
+            <a href="{% url 'dashboard-page' %}" class="nav-link {% if active_nav == 'dashboard' %}active{% endif %}" {% if active_nav == 'dashboard' %}aria-current="page"{% endif %}>
+                <span>▦</span> Tableau de bord
+            </a>
+
+            {% if is_admin or is_stock_manager or is_pharmacist %}
+            <a href="{% url 'medicines-page' %}" class="nav-link {% if active_nav == 'medicines' %}active{% endif %}" {% if active_nav == 'medicines' %}aria-current="page"{% endif %}>
+                <span>💊</span> Médicaments
+            </a>
+            {% endif %}
+
+            {% if is_admin or is_stock_manager or is_pharmacist %}
+            <a href="{% url 'inventory-page' %}" class="nav-link {% if active_nav == 'inventory' %}active{% endif %}" {% if active_nav == 'inventory' %}aria-current="page"{% endif %}>
+                <span>▣</span> Inventaire
+            </a>
+            {% endif %}
+
+            {% if is_admin or is_stock_manager %}
+            <a href="{% url 'purchases-page' %}" class="nav-link {% if active_nav == 'purchases' %}active{% endif %}" {% if active_nav == 'purchases' %}aria-current="page"{% endif %}>
+                <span>🛒</span> Achats
+            </a>
+            {% endif %}
+
+            {% if is_admin or is_pharmacist or is_cashier %}
+            <a href="{% url 'sales-page' %}" class="nav-link {% if active_nav == 'sales' %}active{% endif %}" {% if active_nav == 'sales' %}aria-current="page"{% endif %}>
+                <span>▧</span> Ventes
+            </a>
+            {% endif %}
+
+            {% if is_admin or is_stock_manager %}
+            <a href="{% url 'suppliers-page' %}" class="nav-link {% if active_nav == 'suppliers' %}active{% endif %}" {% if active_nav == 'suppliers' %}aria-current="page"{% endif %}>
+                <span>♧</span> Fournisseurs
+            </a>
+            {% endif %}
+
+            {% if is_admin %}
+            <a href="{% url 'accounts-page' %}" class="nav-link {% if active_nav == 'accounts' %}active{% endif %}" {% if active_nav == 'accounts' %}aria-current="page"{% endif %}>
+                <span>👥</span> Comptes
+            </a>
+            {% endif %}
+
+            <a href="{% url 'profile-page' %}" class="nav-link {% if active_nav == 'profile' %}active{% endif %}" {% if active_nav == 'profile' %}aria-current="page"{% endif %}>
+                <span>👤</span> Mon profil
+            </a>
+
+            {% if is_admin %}
+            <a href="/admin/" class="nav-link">
+                <span>⚙</span> Administration
+            </a>
+            {% endif %}
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-mini">
+                <div class="avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+
+                <div class="user-mini-info">
+                    <strong>{{ request.user.username }}</strong>
+                    <small>{{ request.user.role }}</small>
+                </div>
+            </div>
+
+            <form method="post" action="{% url 'dashboard-logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">
+                    ↪ Déconnexion
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <button class="menu-toggle" id="menuToggle" type="button">
+                ☰
+            </button>
+
+            <div>
+                <h1>{% block page_heading %}Tableau de bord{% endblock %}</h1>
+                <p>{% block page_subtitle %}Bienvenue sur votre espace PharmaStock.{% endblock %}</p>
+            </div>
+
+            <div class="topbar-user">
+                <span class="status-dot"></span>
+                {{ request.user.username }}
+            </div>
+
+        </header>
+
+
+        <section class="page-content">
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </section>
+
+        <footer class="footer">
+            PharmaStock &copy; {% now "Y" %} — Gestion pharmaceutique
+        </footer>
+
+    </main>
+
+</div>
+
+<div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+<script src="{% static 'dashboard/js/app.js' %}"></script>
+<script src="{% static 'dashboard/js/dashboard.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

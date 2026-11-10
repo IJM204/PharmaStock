@@ -1,0 +1,91 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Tableau de bord | PharmaStock{% endblock %}
+
+{% block page_heading %}Tableau de bord{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-intro">
+    <div>
+        <h2>Vue générale</h2>
+        <p>Suivez les activités de votre pharmacie.</p>
+    </div>
+
+    <div class="date-display" id="dashboardDate">
+        Chargement de la date...
+    </div>
+</div>
+
+
+<div id="loadingMessage" class="message-card">
+    Chargement des statistiques...
+</div>
+
+<div id="errorMessage" class="message-card error-message hidden">
+    Impossible de charger les statistiques.
+</div>
+
+
+<section id="statisticsSection" class="statistics-grid">
+
+    <!-- Les cartes seront créées par JavaScript -->
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Alertes et notifications</h2>
+            <p>Éléments nécessitant votre attention.</p>
+        </div>
+    </div>
+
+    <div id="alertsContainer" class="alerts-grid">
+        <!-- Les alertes seront créées par JavaScript -->
+    </div>
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Informations du compte</h2>
+            <p>Votre session actuelle.</p>
+        </div>
+    </div>
+
+    <div class="account-card">
+        <div class="account-avatar">
+            {{ request.user.username|first|upper }}
+        </div>
+
+        <div>
+            <h3>{{ request.user.username }}</h3>
+            <p>Rôle : {{ request.user.role }}</p>
+            <p>Compte :
+                {% if request.user.is_active %}
+                    <span class="text-success">Actif</span>
+                {% else %}
+                    <span class="text-danger">Inactif</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        loadDashboard();
+    });
+</script>
+{% endblock %}

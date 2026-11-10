@@ -1,0 +1,123 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Nouvel achat | PharmaStock{% endblock %}
+
+{% block page_heading %}Nouvel achat{% endblock %}
+{% block page_subtitle %}Créez une commande fournisseur avec ses lignes de médicaments.{% endblock %}
+
+{% block content %}
+<div id="purchaseCreatePage">
+
+    <div class="page-header">
+        <div>
+            <h2>Créer une commande fournisseur</h2>
+            <p>
+                Renseignez le fournisseur et les médicaments commandés. La
+                réception du stock se fera ensuite depuis le détail de l’achat.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'purchases-page' %}" class="btn btn-secondary">
+                ← Retour aux achats
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="purchaseCreateError" role="alert"></div>
+
+    <form id="purchaseForm" novalidate>
+        <div class="card mb-24">
+            <div class="card-header">
+                <div>
+                    <h3>Informations générales</h3>
+                    <p>Le fournisseur et la date de livraison attendue.</p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="purchaseSupplier">Fournisseur <span class="required">*</span></label>
+                        <select id="purchaseSupplier" name="supplier" required>
+                            <option value="">Chargement des fournisseurs...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purchaseExpectedDate">Date de livraison attendue</label>
+                        <input type="date" id="purchaseExpectedDate" name="expected_date">
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="purchaseNotes">Notes</label>
+                        <textarea id="purchaseNotes" name="notes" rows="3" placeholder="Informations complémentaires sur la commande..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h3>Lignes de commande</h3>
+                    <p>Ajoutez chaque médicament une seule fois, avec sa quantité et son prix d’achat.</p>
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-sm" id="addPurchaseItemButton">
+                    + Ajouter une ligne
+                </button>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Médicament</th>
+                            <th>Quantité</th>
+                            <th>Prix unitaire</th>
+                            <th>Fabrication</th>
+                            <th>Expiration</th>
+                            <th class="text-right">Sous-total</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchaseItemsBody">
+                        <tr>
+                            <td colspan="7">
+                                <div class="loading-state">
+                                    <span class="loading-dot"></span>
+                                    Chargement des médicaments...
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer">
+                <div class="cart-summary">
+                    <div>
+                        <div class="cart-summary-label">Total de la commande</div>
+                        <div class="cart-summary-value" id="purchaseFormTotal">0 BIF</div>
+                    </div>
+
+                    <div class="page-actions">
+                        <a href="{% url 'purchases-page' %}" class="btn btn-secondary">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitPurchaseButton" disabled>
+                            Enregistrer l’achat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'purchases/js/purchase-create.js' %}"></script>
+{% endblock %}

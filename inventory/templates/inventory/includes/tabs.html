@@ -1,0 +1,14 @@
+<div class="tabs" aria-label="Navigation du module stock">
+    <a href="{% url 'inventory-page' %}" class="tab-link {% if request.resolver_match.url_name == 'inventory-page' %}active{% endif %}" {% if request.resolver_match.url_name == 'inventory-page' %}aria-current="page"{% endif %}>
+        Lots de stock
+    </a>
+    <a href="{% url 'inventory-movements-page' %}" class="tab-link {% if request.resolver_match.url_name == 'inventory-movements-page' %}active{% endif %}" {% if request.resolver_match.url_name == 'inventory-movements-page' %}aria-current="page"{% endif %}>
+        Mouvements
+    </a>
+    <a href="{% url 'inventory-low-stock-page' %}" class="tab-link {% if request.resolver_match.url_name == 'inventory-low-stock-page' %}active{% endif %}" {% if request.resolver_match.url_name == 'inventory-low-stock-page' %}aria-current="page"{% endif %}>
+        Stock faible
+    </a>
+    <a href="{% url 'inventory-expired-page' %}" class="tab-link {% if request.resolver_match.url_name == 'inventory-expired-page' %}active{% endif %}" {% if request.resolver_match.url_name == 'inventory-expired-page' %}aria-current="page"{% endif %}>
+        Expirés
+    </a>
+</div>

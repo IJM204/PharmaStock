@@ -1,0 +1,212 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Médicaments | PharmaStock{% endblock %}
+
+{% block page_heading %}Médicaments{% endblock %}
+{% block page_subtitle %}Gérez le catalogue et les catégories de votre pharmacie.{% endblock %}
+
+{% block content %}
+<div id="medicinePage" data-can-manage="{% if can_manage_medicines %}true{% else %}false{% endif %}">
+
+    <div class="page-header">
+        <div>
+            <h2>Catalogue des médicaments</h2>
+            <p>
+                Recherchez un médicament, filtrez par catégorie ou par statut,
+                puis ajoutez ou mettez à jour ses informations.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'medicine-categories-page' %}" class="btn btn-secondary">
+                Gérer les catégories
+            </a>
+
+            {% if can_manage_medicines %}
+            <button type="button" class="btn btn-primary" id="addMedicineButton">
+                + Nouveau médicament
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="medicinePageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques des médicaments">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Médicaments</span>
+                <div class="stat-icon">💊</div>
+            </div>
+            <div class="stat-value" id="medicineTotalCount">—</div>
+            <p class="stat-description">Nombre total de médicaments</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Actifs</span>
+                <div class="stat-icon">✓</div>
+            </div>
+            <div class="stat-value" id="medicineActiveCount">—</div>
+            <p class="stat-description">Médicaments disponibles à la vente</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Catégories</span>
+                <div class="stat-icon">▤</div>
+            </div>
+            <div class="stat-value" id="medicineCategoryCount">—</div>
+            <p class="stat-description">Catégories enregistrées</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="medicineSearch"
+                    placeholder="Rechercher par nom ou nom générique..."
+                    autocomplete="off"
+                    aria-label="Rechercher un médicament"
+                >
+            </div>
+
+            <select id="medicineCategoryFilter" class="filter-select" aria-label="Filtrer par catégorie">
+                <option value="">Toutes les catégories</option>
+            </select>
+
+            <select id="medicineStatusFilter" class="filter-select" aria-label="Filtrer par statut">
+                <option value="">Tous les statuts</option>
+                <option value="active">Actifs</option>
+                <option value="inactive">Inactifs</option>
+            </select>
+
+            <button type="button" class="btn btn-secondary" id="resetMedicineFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="medicineResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Médicament</th>
+                        <th>Dosage</th>
+                        <th>Forme</th>
+                        <th>Catégorie</th>
+                        <th>Prix</th>
+                        <th>Statut</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="medicineTableBody">
+                    <tr>
+                        <td colspan="7">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des médicaments...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="medicinePagination" class="pagination"></div>
+    </div>
+</div>
+
+{% if can_manage_medicines %}
+<div class="modal-backdrop hidden" id="medicineModal" role="dialog" aria-modal="true" aria-labelledby="medicineModalTitle">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="medicineModalTitle">Nouveau médicament</h3>
+            <button type="button" class="modal-close" data-close-modal aria-label="Fermer">×</button>
+        </div>
+
+        <form id="medicineForm" novalidate>
+            <div class="modal-body">
+                <div class="form-error-summary hidden" data-form-error></div>
+
+                <input type="hidden" id="medicineId">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="medicineName">Nom <span class="required">*</span></label>
+                        <input type="text" id="medicineName" name="name" required maxlength="100">
+                        <span class="field-error hidden" data-error-for="name"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineGenericName">Nom générique</label>
+                        <input type="text" id="medicineGenericName" name="generic_name" maxlength="150">
+                        <span class="field-error hidden" data-error-for="generic_name"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineDosage">Dosage <span class="required">*</span></label>
+                        <input type="text" id="medicineDosage" name="dosage" required maxlength="100" placeholder="Ex. 500 mg">
+                        <span class="field-error hidden" data-error-for="dosage"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineFormSelect">Forme <span class="required">*</span></label>
+                        <select id="medicineFormSelect" name="form" required>
+                            {% for value, label in form_choices %}
+                                <option value="{{ value }}">{{ label|capfirst }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="field-error hidden" data-error-for="form"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineCategory">Catégorie <span class="required">*</span></label>
+                        <select id="medicineCategory" name="category" required>
+                            <option value="">Chargement des catégories...</option>
+                        </select>
+                        <span class="field-error hidden" data-error-for="category"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicinePrice">Prix unitaire (BIF) <span class="required">*</span></label>
+                        <input type="number" id="medicinePrice" name="unit_price" min="0" step="0.01" required>
+                        <span class="field-error hidden" data-error-for="unit_price"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="medicineDescription">Description</label>
+                        <textarea id="medicineDescription" name="description" rows="3"></textarea>
+                        <span class="field-error hidden" data-error-for="description"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="medicineIsActive" name="is_active" checked>
+                            <label for="medicineIsActive">Médicament actif</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+                <button type="submit" class="btn btn-primary" id="medicineSubmitButton">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'medicines/js/medicines.js' %}"></script>
+{% endblock %}

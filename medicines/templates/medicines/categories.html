@@ -1,0 +1,152 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Catégories de médicaments | PharmaStock{% endblock %}
+
+{% block page_heading %}Catégories{% endblock %}
+{% block page_subtitle %}Organisez le catalogue par catégories de médicaments.{% endblock %}
+
+{% block content %}
+<div id="categoryPage" data-can-manage="{% if can_manage_medicines %}true{% else %}false{% endif %}">
+
+    <div class="page-header">
+        <div>
+            <h2>Catégories de médicaments</h2>
+            <p>
+                Créez et organisez les catégories utilisées pour classer
+                les médicaments de votre pharmacie.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'medicines-page' %}" class="btn btn-secondary">
+                ← Retour aux médicaments
+            </a>
+
+            {% if can_manage_medicines %}
+            <button type="button" class="btn btn-primary" id="addCategoryButton">
+                + Nouvelle catégorie
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="categoryPageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques des catégories">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Catégories</span>
+                <div class="stat-icon">▤</div>
+            </div>
+            <div class="stat-value" id="categoryTotalCount">—</div>
+            <p class="stat-description">Catégories enregistrées</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Médicaments classés</span>
+                <div class="stat-icon">💊</div>
+            </div>
+            <div class="stat-value" id="categoryMedicineCount">—</div>
+            <p class="stat-description">Total des médicaments dans les catégories</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="categorySearch"
+                    placeholder="Rechercher une catégorie..."
+                    autocomplete="off"
+                    aria-label="Rechercher une catégorie"
+                >
+            </div>
+
+            <button type="button" class="btn btn-secondary" id="resetCategoryFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="categoryResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th>Description</th>
+                        <th>Médicaments</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="categoryTableBody">
+                    <tr>
+                        <td colspan="4">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des catégories...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="categoryPagination" class="pagination"></div>
+    </div>
+</div>
+
+{% if can_manage_medicines %}
+<div class="modal-backdrop hidden" id="categoryModal" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="categoryModalTitle">Nouvelle catégorie</h3>
+            <button type="button" class="modal-close" data-close-modal aria-label="Fermer">×</button>
+        </div>
+
+        <form id="categoryForm" novalidate>
+            <div class="modal-body">
+                <div class="form-error-summary hidden" data-form-error></div>
+
+                <input type="hidden" id="categoryId">
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="categoryName">Nom <span class="required">*</span></label>
+                        <input type="text" id="categoryName" name="name" required maxlength="100">
+                        <span class="field-error hidden" data-error-for="name"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="categoryDescription">Description</label>
+                        <textarea id="categoryDescription" name="description" rows="4"></textarea>
+                        <span class="field-error hidden" data-error-for="description"></span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-16">
+                    Une catégorie ne peut être supprimée que si elle ne contient
+                    aucun médicament.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+                <button type="submit" class="btn btn-primary" id="categorySubmitButton">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'medicines/js/categories.js' %}"></script>
+{% endblock %}

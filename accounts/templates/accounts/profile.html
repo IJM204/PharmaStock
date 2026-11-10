@@ -1,0 +1,106 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Mon profil | PharmaStock{% endblock %}
+
+{% block page_heading %}Mon profil{% endblock %}
+{% block page_subtitle %}Consultez et mettez à jour les informations de votre compte.{% endblock %}
+
+{% block content %}
+<div id="profilePage">
+
+    <div class="page-header">
+        <div>
+            <h2>Informations personnelles</h2>
+            <p>
+                Votre identifiant et votre rôle sont gérés par un administrateur.
+                Vous pouvez modifier vos coordonnées et votre mot de passe.
+            </p>
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="profilePageAlert" role="alert"></div>
+
+    <div class="profile-card mb-24">
+        <div class="profile-avatar" id="profileAvatar">—</div>
+        <div>
+            <h2 id="profileDisplayName">Chargement...</h2>
+            <p id="profileDisplayUsername">—</p>
+            <div class="mt-16" id="profileDisplayBadges"></div>
+        </div>
+    </div>
+
+    <div class="detail-grid two-columns">
+        <article class="detail-card">
+            <h3>Détails du compte</h3>
+            <dl class="detail-list">
+                <div>
+                    <dt>Identifiant</dt>
+                    <dd id="profileUsername">—</dd>
+                </div>
+                <div>
+                    <dt>Rôle</dt>
+                    <dd id="profileRole">—</dd>
+                </div>
+                <div>
+                    <dt>Statut</dt>
+                    <dd id="profileStatus">—</dd>
+                </div>
+                <div>
+                    <dt>Membre depuis</dt>
+                    <dd id="profileDateJoined">—</dd>
+                </div>
+                <div>
+                    <dt>Dernière connexion</dt>
+                    <dd id="profileLastLogin">—</dd>
+                </div>
+            </dl>
+        </article>
+
+        <article class="detail-card">
+            <h3>Modifier mes informations</h3>
+
+            <form id="profileForm" novalidate>
+                <div class="form-error-summary hidden" data-form-error></div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="profileFirstName">Prénom</label>
+                        <input type="text" id="profileFirstName" maxlength="150">
+                        <span class="field-error hidden" data-error-for="first_name"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profileLastName">Nom</label>
+                        <input type="text" id="profileLastName" maxlength="150">
+                        <span class="field-error hidden" data-error-for="last_name"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" autocomplete="off">
+                        <span class="field-error hidden" data-error-for="email"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="profilePassword">Nouveau mot de passe</label>
+                        <input type="password" id="profilePassword" minlength="8" autocomplete="new-password" placeholder="Laisser vide pour conserver le mot de passe actuel">
+                        <span class="form-help">Au moins 8 caractères. Laisser vide pour ne pas le modifier.</span>
+                        <span class="field-error hidden" data-error-for="password"></span>
+                    </div>
+                </div>
+
+                <div class="page-actions mt-16">
+                    <button type="submit" class="btn btn-primary" id="profileSubmitButton">
+                        Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
+        </article>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'accounts/js/profile.js' %}"></script>
+{% endblock %}

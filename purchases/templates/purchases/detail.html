@@ -1,0 +1,252 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Achat #{{ purchase_id }} | PharmaStock{% endblock %}
+
+{% block page_heading %}Détail de l’achat{% endblock %}
+{% block page_subtitle %}Suivez la commande et enregistrez les réceptions de stock.{% endblock %}
+
+{% block content %}
+<div id="purchaseDetailPage" data-purchase-id="{{ purchase_id }}">
+
+    <div class="page-header">
+        <div>
+            <h2>Achat #{{ purchase_id }}</h2>
+            <p id="purchaseDetailSubtitle">Chargement des informations...</p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'purchase-receipts-page' %}" class="btn btn-secondary">
+                Historique des réceptions
+            </a>
+            <a href="{% url 'purchases-page' %}" class="btn btn-secondary">
+                ← Retour aux achats
+            </a>
+            <button type="button" class="btn btn-primary" id="receivePurchaseButton" disabled>
+                Réceptionner
+            </button>
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="purchaseDetailError" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques de l’achat">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Total commandé</span>
+                <div class="stat-icon">∑</div>
+            </div>
+            <div class="stat-value" id="purchaseDetailTotal">—</div>
+            <p class="stat-description">Montant total de la commande</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Quantité commandée</span>
+                <div class="stat-icon">▤</div>
+            </div>
+            <div class="stat-value" id="purchaseDetailOrdered">—</div>
+            <p class="stat-description">Unités commandées</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Quantité reçue</span>
+                <div class="stat-icon">✓</div>
+            </div>
+            <div class="stat-value" id="purchaseDetailReceived">—</div>
+            <p class="stat-description">Unités déjà réceptionnées</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Restant</span>
+                <div class="stat-icon">◷</div>
+            </div>
+            <div class="stat-value" id="purchaseDetailRemaining">—</div>
+            <p class="stat-description">Unités restant à recevoir</p>
+        </article>
+    </section>
+
+    <div class="detail-grid two-columns">
+        <article class="detail-card">
+            <h3>Informations générales</h3>
+            <dl class="detail-list">
+                <div>
+                    <dt>Fournisseur</dt>
+                    <dd id="purchaseDetailSupplier">—</dd>
+                </div>
+                <div>
+                    <dt>Commandé par</dt>
+                    <dd id="purchaseDetailOrderedBy">—</dd>
+                </div>
+                <div>
+                    <dt>Date de commande</dt>
+                    <dd id="purchaseDetailOrderDate">—</dd>
+                </div>
+                <div>
+                    <dt>Livraison attendue</dt>
+                    <dd id="purchaseDetailExpectedDate">—</dd>
+                </div>
+            </dl>
+        </article>
+
+        <article class="detail-card">
+            <h3>État de la commande</h3>
+            <dl class="detail-list">
+                <div>
+                    <dt>Statut</dt>
+                    <dd id="purchaseDetailStatus">—</dd>
+                </div>
+                <div>
+                    <dt>Notes</dt>
+                    <dd id="purchaseDetailNotes">—</dd>
+                </div>
+            </dl>
+        </article>
+    </div>
+
+    <div class="table-card mb-24">
+        <div class="card-header">
+            <div>
+                <h3>Lignes de commande</h3>
+                <p>Quantités commandées, reçues et restant à réceptionner.</p>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Médicament</th>
+                        <th class="text-right">Commandé</th>
+                        <th class="text-right">Reçu</th>
+                        <th class="text-right">Restant</th>
+                        <th class="text-right">Prix unitaire</th>
+                        <th>Fabrication</th>
+                        <th>Expiration</th>
+                        <th class="text-right">Sous-total</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseItemsBody">
+                    <tr>
+                        <td colspan="9">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des lignes...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="card-header">
+            <div>
+                <h3>Réceptions de cet achat</h3>
+                <p>Chaque réception confirmée a créé un lot et un mouvement de stock.</p>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Médicament</th>
+                        <th class="text-right">Quantité</th>
+                        <th>Lot</th>
+                        <th>Expiration</th>
+                        <th>Reçu par</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseReceiptsBody">
+                    <tr>
+                        <td colspan="8">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des réceptions...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop hidden" id="receivePurchaseModal" role="dialog" aria-modal="true" aria-labelledby="receivePurchaseModalTitle">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="receivePurchaseModalTitle">Réceptionner une ligne d’achat</h3>
+            <button type="button" class="modal-close" data-close-modal aria-label="Fermer">×</button>
+        </div>
+
+        <form id="receivePurchaseForm" novalidate>
+            <div class="modal-body">
+                <div class="form-error-summary hidden" data-form-error></div>
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="receivePurchaseItem">Ligne d’achat <span class="required">*</span></label>
+                        <select id="receivePurchaseItem" required>
+                            <option value="">Sélectionner une ligne</option>
+                        </select>
+                        <span class="form-help" id="receivePurchaseItemHelp">
+                            Seules les lignes avec une quantité restante sont proposées.
+                        </span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receiveQuantity">Quantité reçue <span class="required">*</span></label>
+                        <input type="number" id="receiveQuantity" min="1" step="1" required>
+                        <span class="field-error hidden" data-error-for="quantity"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receiveBatchNumber">Numéro de lot <span class="required">*</span></label>
+                        <input type="text" id="receiveBatchNumber" maxlength="100" required placeholder="Ex. LOT-2026-001">
+                        <span class="field-error hidden" data-error-for="batch_number"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receiveManufacturingDate">Date de fabrication</label>
+                        <input type="date" id="receiveManufacturingDate">
+                        <span class="field-error hidden" data-error-for="manufacturing_date"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receiveExpiryDate">Date d’expiration</label>
+                        <input type="date" id="receiveExpiryDate">
+                        <span class="field-error hidden" data-error-for="expiry_date"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="receiveNotes">Notes</label>
+                        <textarea id="receiveNotes" rows="3" placeholder="Observations sur la réception..."></textarea>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" id="receiveItemSummary">
+                    Sélectionnez une ligne pour afficher la quantité restante.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+                <button type="submit" class="btn btn-primary" id="receiveSubmitButton">
+                    Confirmer la réception
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'purchases/js/purchase-detail.js' %}"></script>
+{% endblock %}

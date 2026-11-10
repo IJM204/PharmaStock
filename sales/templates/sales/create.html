@@ -1,0 +1,117 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Nouvelle vente | PharmaStock{% endblock %}
+
+{% block page_heading %}Nouvelle vente{% endblock %}
+{% block page_subtitle %}Sélectionnez les médicaments et validez la vente.{% endblock %}
+
+{% block content %}
+<div id="saleCreatePage">
+
+    <div class="page-header">
+        <div>
+            <h2>Enregistrer une vente</h2>
+            <p>
+                Ajoutez les médicaments au panier. Le backend choisit
+                automatiquement les lots selon la méthode FEFO et vérifie la
+                disponibilité ainsi que le prix de vente.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'sales-page' %}" class="btn btn-secondary">
+                ← Retour aux ventes
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="saleCreateError" role="alert"></div>
+
+    <div class="card mb-24">
+        <div class="card-header">
+            <div>
+                <h3>Ajouter un médicament</h3>
+                <p>Choisissez un médicament disposant de stock non expiré.</p>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="saleMedicineSelect">Médicament</label>
+                    <select id="saleMedicineSelect">
+                        <option value="">Chargement des médicaments...</option>
+                    </select>
+                    <span class="form-help" id="saleMedicineHelp">
+                        Les médicaments sans stock disponible ne sont pas affichés.
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="saleQuantityInput">Quantité</label>
+                    <input type="number" id="saleQuantityInput" min="1" step="1" value="1">
+                </div>
+
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn btn-primary" id="addSaleLineButton">
+                        + Ajouter au panier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h3>Panier</h3>
+                <p id="cartLineCount">Aucun médicament ajouté.</p>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Médicament</th>
+                        <th class="text-right">Prix unitaire</th>
+                        <th class="text-right">Quantité</th>
+                        <th class="text-right">Sous-total</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="saleCartBody">
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🛒</div>
+                                <h3>Le panier est vide</h3>
+                                <p>Ajoutez au moins un médicament pour enregistrer une vente.</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer">
+            <div class="cart-summary">
+                <div>
+                    <div class="cart-summary-label">Total estimé</div>
+                    <div class="cart-summary-value" id="saleCartTotal">0 BIF</div>
+                </div>
+
+                <button type="button" class="btn btn-primary" id="submitSaleButton" disabled>
+                    Valider la vente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'sales/js/sale-create.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Comptes | PharmaStock{% endblock %}
+
+{% block page_heading %}Comptes{% endblock %}
+{% block page_subtitle %}Gérez les utilisateurs, leurs rôles et leur accès à PharmaStock.{% endblock %}
+
+{% block content %}
+<div id="accountsPage" data-current-user-id="{{ current_user_id }}">
+
+    <div class="page-header">
+        <div>
+            <h2>Gestion des utilisateurs</h2>
+            <p>
+                Créez les comptes, attribuez les rôles et activez ou désactivez
+                l’accès des membres de l’équipe.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <button type="button" class="btn btn-primary" id="addAccountButton">
+                + Nouvel utilisateur
+            </button>
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="accountsPageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques des comptes">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Utilisateurs</span>
+                <div class="stat-icon">👥</div>
+            </div>
+            <div class="stat-value" id="accountsTotalCount">—</div>
+            <p class="stat-description">Nombre total de comptes</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Actifs</span>
+                <div class="stat-icon">✓</div>
+            </div>
+            <div class="stat-value" id="accountsActiveCount">—</div>
+            <p class="stat-description">Comptes autorisés à se connecter</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Inactifs</span>
+                <div class="stat-icon">⊘</div>
+            </div>
+            <div class="stat-value" id="accountsInactiveCount">—</div>
+            <p class="stat-description">Comptes désactivés</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Administrateurs</span>
+                <div class="stat-icon">⚙</div>
+            </div>
+            <div class="stat-value" id="accountsAdminCount">—</div>
+            <p class="stat-description">Comptes avec le rôle Admin</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="accountSearch"
+                    placeholder="Rechercher par nom, identifiant ou email..."
+                    autocomplete="off"
+                    aria-label="Rechercher un utilisateur"
+                >
+            </div>
+
+            <select id="accountRoleFilter" class="filter-select" aria-label="Filtrer par rôle">
+                <option value="">Tous les rôles</option>
+                <option value="Admin">Administrateur</option>
+                <option value="Cashier">Caissier</option>
+                <option value="STOCK_Manager">Gestionnaire de stock</option>
+                <option value="PHARMASIST">Pharmacien</option>
+            </select>
+
+            <select id="accountStatusFilter" class="filter-select" aria-label="Filtrer par statut">
+                <option value="">Tous les statuts</option>
+                <option value="active">Actifs</option>
+                <option value="inactive">Inactifs</option>
+            </select>
+
+            <button type="button" class="btn btn-secondary" id="resetAccountFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="accountResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Dernière connexion</th>
+                        <th>Créé le</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="accountTableBody">
+                    <tr>
+                        <td colspan="7">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des utilisateurs...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="accountPagination" class="pagination"></div>
+    </div>
+</div>
+
+<div class="modal-backdrop hidden" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="accountModalTitle">Nouvel utilisateur</h3>
+            <button type="button" class="modal-close" data-close-modal aria-label="Fermer">×</button>
+        </div>
+
+        <form id="accountForm" novalidate>
+            <div class="modal-body">
+                <div class="form-error-summary hidden" data-form-error></div>
+
+                <input type="hidden" id="accountId">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="accountUsername">Identifiant <span class="required">*</span></label>
+                        <input type="text" id="accountUsername" maxlength="150" required autocomplete="off">
+                        <span class="form-help">Lettres, chiffres et @ . + - _ uniquement.</span>
+                        <span class="field-error hidden" data-error-for="username"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountEmail">Email</label>
+                        <input type="email" id="accountEmail" autocomplete="off">
+                        <span class="field-error hidden" data-error-for="email"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountFirstName">Prénom</label>
+                        <input type="text" id="accountFirstName" maxlength="150">
+                        <span class="field-error hidden" data-error-for="first_name"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountLastName">Nom</label>
+                        <input type="text" id="accountLastName" maxlength="150">
+                        <span class="field-error hidden" data-error-for="last_name"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountRole">Rôle <span class="required">*</span></label>
+                        <select id="accountRole" required>
+                            <option value="Admin">Administrateur</option>
+                            <option value="Cashier">Caissier</option>
+                            <option value="STOCK_Manager">Gestionnaire de stock</option>
+                            <option value="PHARMASIST">Pharmacien</option>
+                        </select>
+                        <span class="field-error hidden" data-error-for="role"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountPassword">Mot de passe <span class="required" id="accountPasswordRequired">*</span></label>
+                        <input type="password" id="accountPassword" minlength="8" autocomplete="new-password">
+                        <span class="form-help" id="accountPasswordHelp">Au moins 8 caractères.</span>
+                        <span class="field-error hidden" data-error-for="password"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="accountIsActive" checked>
+                            <label for="accountIsActive">Compte actif</label>
+                        </div>
+                        <span class="form-help" id="accountActiveHelp">
+                            Un compte inactif ne peut pas se connecter.
+                        </span>
+                        <span class="field-error hidden" data-error-for="is_active"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+                <button type="submit" class="btn btn-primary" id="accountSubmitButton">
+                    Créer l’utilisateur
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'accounts/js/accounts.js' %}"></script>
+{% endblock %}

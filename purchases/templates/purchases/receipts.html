@@ -1,0 +1,122 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Réceptions d’achat | PharmaStock{% endblock %}
+
+{% block page_heading %}Réceptions d’achat{% endblock %}
+{% block page_subtitle %}Consultez les lots reçus et les mouvements de stock générés.{% endblock %}
+
+{% block content %}
+<div id="purchaseReceiptsPage">
+
+    <div class="page-header">
+        <div>
+            <h2>Historique des réceptions</h2>
+            <p>
+                Chaque réception confirmée correspond à un lot créé en stock et à
+                un mouvement d’entrée.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'purchases-page' %}" class="btn btn-secondary">
+                ← Retour aux achats
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="purchaseReceiptsPageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques des réceptions">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Réceptions</span>
+                <div class="stat-icon">⇩</div>
+            </div>
+            <div class="stat-value" id="receiptsTotalCount">—</div>
+            <p class="stat-description">Nombre total de réceptions</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Confirmées</span>
+                <div class="stat-icon">✓</div>
+            </div>
+            <div class="stat-value" id="receiptsConfirmedCount">—</div>
+            <p class="stat-description">Réceptions traitées en stock</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Unités reçues</span>
+                <div class="stat-icon">▤</div>
+            </div>
+            <div class="stat-value" id="receiptsQuantityTotal">—</div>
+            <p class="stat-description">Total des quantités confirmées</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="receiptSearch"
+                    placeholder="Rechercher par médicament, lot, achat ou utilisateur..."
+                    autocomplete="off"
+                    aria-label="Rechercher une réception"
+                >
+            </div>
+
+            <select id="receiptStatusFilter" class="filter-select" aria-label="Filtrer par statut">
+                <option value="">Tous les statuts</option>
+                <option value="CONFIRMED">Confirmées</option>
+                <option value="DRAFT">Brouillons</option>
+                <option value="CANCELLED">Annulées</option>
+            </select>
+
+            <button type="button" class="btn btn-secondary" id="resetReceiptFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="receiptResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Achat</th>
+                        <th>Médicament</th>
+                        <th class="text-right">Quantité</th>
+                        <th>Lot</th>
+                        <th>Expiration</th>
+                        <th>Reçu par</th>
+                        <th>Statut</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="receiptTableBody">
+                    <tr>
+                        <td colspan="9">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des réceptions...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="receiptPagination" class="pagination"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'purchases/js/receipts.js' %}"></script>
+{% endblock %}

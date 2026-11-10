@@ -1,0 +1,134 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Achats | PharmaStock{% endblock %}
+
+{% block page_heading %}Achats{% endblock %}
+{% block page_subtitle %}Gérez les commandes fournisseurs et les réceptions de stock.{% endblock %}
+
+{% block content %}
+<div id="purchasesPage">
+
+    <div class="page-header">
+        <div>
+            <h2>Commandes fournisseurs</h2>
+            <p>
+                Créez les achats, suivez les quantités commandées et enregistrez
+                les réceptions partielles ou complètes.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <a href="{% url 'purchase-receipts-page' %}" class="btn btn-secondary">
+                Historique des réceptions
+            </a>
+            <a href="{% url 'purchase-create-page' %}" class="btn btn-primary">
+                + Nouvel achat
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-danger hidden" id="purchasesPageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques des achats">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Achats</span>
+                <div class="stat-icon">🛒</div>
+            </div>
+            <div class="stat-value" id="purchasesTotalCount">—</div>
+            <p class="stat-description">Nombre total d’achats</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">En attente</span>
+                <div class="stat-icon">◷</div>
+            </div>
+            <div class="stat-value" id="purchasesPendingCount">—</div>
+            <p class="stat-description">Achats au statut PENDING</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Partiels</span>
+                <div class="stat-icon">◐</div>
+            </div>
+            <div class="stat-value" id="purchasesPartialCount">—</div>
+            <p class="stat-description">Achats partiellement reçus</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Reçus</span>
+                <div class="stat-icon">✓</div>
+            </div>
+            <div class="stat-value" id="purchasesReceivedCount">—</div>
+            <p class="stat-description">Achats entièrement reçus</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="purchaseSearch"
+                    placeholder="Rechercher par achat, fournisseur ou médicament..."
+                    autocomplete="off"
+                    aria-label="Rechercher un achat"
+                >
+            </div>
+
+            <select id="purchaseStatusFilter" class="filter-select" aria-label="Filtrer par statut">
+                <option value="">Tous les statuts</option>
+                <option value="PENDING">En attente</option>
+                <option value="PARTIAL">Partiels</option>
+                <option value="RECEIVED">Reçus</option>
+                <option value="CANCELLED">Annulés</option>
+            </select>
+
+            <button type="button" class="btn btn-secondary" id="resetPurchaseFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="purchaseResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Achat</th>
+                        <th>Date</th>
+                        <th>Fournisseur</th>
+                        <th>Articles</th>
+                        <th>Total</th>
+                        <th>Statut</th>
+                        <th>Attendu le</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseTableBody">
+                    <tr>
+                        <td colspan="8">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des achats...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="purchasePagination" class="pagination"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'purchases/js/purchases.js' %}"></script>
+{% endblock %}

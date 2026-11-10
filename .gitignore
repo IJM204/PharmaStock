@@ -1,0 +1,41 @@
+# Variables d'environnement et secrets
+.env
+.env.*
+!.env.example
+
+# Environnements virtuels Python
+env/
+.venv/
+venv/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Bases de données locales et sauvegardes
+*.sqlite3
+*.sqlite3-*
+*.db
+*.dump
+
+# Fichiers de logs
+*.log
+
+# Fichiers générés
+staticfiles/
+media/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE et éditeurs
+.idea/
+.vscode/
+
+# Système
+.DS_Store
+Thumbs.db
+db.sqlite3*
+/0
+*.backup

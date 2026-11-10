@@ -1,0 +1,209 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Mouvements de stock | PharmaStock{% endblock %}
+
+{% block page_heading %}Mouvements de stock{% endblock %}
+{% block page_subtitle %}Enregistrez les entrées, sorties et ajustements de stock.{% endblock %}
+
+{% block content %}
+<div id="movementPage">
+
+    <div class="page-header">
+        <div>
+            <h2>Historique des mouvements</h2>
+            <p>
+                Chaque entrée, sortie ou ajustement est enregistré avec son
+                auteur et son motif. Les quantités sont modifiées uniquement
+                par l’API de mouvement.
+            </p>
+        </div>
+
+        <div class="page-actions">
+            <button type="button" class="btn btn-primary" id="addMovementButton">
+                + Nouveau mouvement
+            </button>
+        </div>
+    </div>
+
+    {% include 'inventory/includes/tabs.html' %}
+
+    <div class="alert alert-danger hidden" id="movementPageAlert" role="alert"></div>
+
+    <section class="statistics-grid module-stats" aria-label="Statistiques des mouvements">
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Mouvements</span>
+                <div class="stat-icon">↕</div>
+            </div>
+            <div class="stat-value" id="movementTotalCount">—</div>
+            <p class="stat-description">Nombre total de mouvements</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Entrées</span>
+                <div class="stat-icon">↓</div>
+            </div>
+            <div class="stat-value" id="movementInCount">—</div>
+            <p class="stat-description">Mouvements de type IN</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Sorties</span>
+                <div class="stat-icon">↑</div>
+            </div>
+            <div class="stat-value" id="movementOutCount">—</div>
+            <p class="stat-description">Mouvements de type OUT</p>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-card-top">
+                <span class="stat-label">Ajustements</span>
+                <div class="stat-icon">⇄</div>
+            </div>
+            <div class="stat-value" id="movementAdjustmentCount">—</div>
+            <p class="stat-description">Corrections de stock</p>
+        </article>
+    </section>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="movementSearch"
+                    placeholder="Rechercher par médicament, lot, motif..."
+                    autocomplete="off"
+                    aria-label="Rechercher un mouvement"
+                >
+            </div>
+
+            <select id="movementTypeFilter" class="filter-select" aria-label="Filtrer par type">
+                <option value="">Tous les types</option>
+                {% for value, label in movement_types %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="movementBatchFilter" class="filter-select" aria-label="Filtrer par lot">
+                <option value="">Tous les lots</option>
+            </select>
+
+            <button type="button" class="btn btn-secondary" id="resetMovementFilters">
+                Réinitialiser
+            </button>
+        </div>
+
+        <span class="result-count" id="movementResultCount"></span>
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Médicament</th>
+                        <th>Lot</th>
+                        <th>Type</th>
+                        <th>Direction</th>
+                        <th class="text-right">Quantité</th>
+                        <th>Motif</th>
+                        <th>Effectué par</th>
+                    </tr>
+                </thead>
+                <tbody id="movementTableBody">
+                    <tr>
+                        <td colspan="8">
+                            <div class="loading-state">
+                                <span class="loading-dot"></span>
+                                Chargement des mouvements...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="movementPagination" class="pagination"></div>
+    </div>
+</div>
+
+<div class="modal-backdrop hidden" id="movementModal" role="dialog" aria-modal="true" aria-labelledby="movementModalTitle">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="movementModalTitle">Nouveau mouvement de stock</h3>
+            <button type="button" class="modal-close" data-close-modal aria-label="Fermer">×</button>
+        </div>
+
+        <form id="movementForm" novalidate>
+            <div class="modal-body">
+                <div class="form-error-summary hidden" data-form-error></div>
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="movementBatch">Lot concerné <span class="required">*</span></label>
+                        <select id="movementBatch" name="batch" required>
+                            <option value="">Sélectionner un lot</option>
+                        </select>
+                        <span class="field-error hidden" data-error-for="batch"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="movementType">Type de mouvement <span class="required">*</span></label>
+                        <select id="movementType" name="movement_type" required>
+                            {% for value, label in movement_types %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="field-error hidden" data-error-for="movement_type"></span>
+                    </div>
+
+                    <div class="form-group hidden" id="adjustmentDirectionGroup">
+                        <label for="adjustmentDirection">Sens de l’ajustement <span class="required">*</span></label>
+                        <select id="adjustmentDirection" name="adjustment_direction">
+                            <option value="">Sélectionner</option>
+                            {% for value, label in adjustment_directions %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="field-error hidden" data-error-for="adjustment_direction"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="movementQuantity">Quantité <span class="required">*</span></label>
+                        <input type="number" id="movementQuantity" name="quantity" min="1" step="1" required>
+                        <span class="field-error hidden" data-error-for="quantity"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="movementReason">Motif</label>
+                        <textarea id="movementReason" name="reason" rows="3" placeholder="Obligatoire pour un ajustement"></textarea>
+                        <span class="form-help" id="movementReasonHelp">
+                            Le motif est obligatoire pour un ajustement de stock.
+                        </span>
+                        <span class="field-error hidden" data-error-for="reason"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <div class="alert alert-info hidden" id="movementBatchInfo"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-modal>Annuler</button>
+                <button type="submit" class="btn btn-primary" id="movementSubmitButton">
+                    Enregistrer le mouvement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'inventory/js/movements.js' %}"></script>
+{% endblock %}

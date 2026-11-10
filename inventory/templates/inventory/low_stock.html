@@ -1,0 +1,15 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Stock faible | PharmaStock{% endblock %}
+
+{% block page_heading %}Stock faible{% endblock %}
+{% block page_subtitle %}Lots dont la quantité disponible nécessite un réapprovisionnement.{% endblock %}
+
+{% block content %}
+{% include 'inventory/includes/alerts_content.html' with alert_kind='low' alert_title='Lots en stock faible' alert_description='Ces lots ont une quantité disponible faible. Vérifiez-les et prévoyez un réapprovisionnement.' alert_endpoint='/api/inventory/batches/low_stock/' alert_stat_label='Lots concernés' alert_stat_description='Lots avec quantité disponible faible' alert_icon='⚠' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'inventory/js/alerts.js' %}"></script>
+{% endblock %}
